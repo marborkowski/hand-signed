@@ -1,6 +1,6 @@
 # Welcome to Hand-Signed
 
-[![Node.js CI](https://github.com/marborkowski/hand-signed/actions/workflows/node.js.yml/badge.svg?branch=main)](https://github.com/marborkowski/hand-signed/actions/workflows/node.js.yml) [![CodeQL](https://github.com/marborkowski/hand-signed/actions/workflows/codeql-analysis.yml/badge.svg?branch=main)](https://github.com/marborkowski/hand-signed/actions/workflows/codeql-analysis.yml)
+[![Node.js CI](https://github.com/marborkowski/hand-signed/actions/workflows/node.js.yml/badge.svg?branch=main)](https://github.com/marborkowski/hand-signed/actions/workflows/node.js.yml)
 
 ![Colorama](https://raw.githubusercontent.com/marborkowski/hand-signed/main/.storybook/logo.svg?token=GHSAT0AAAAAABTC7KOVXVHC3RYLAKKDUDAKYTC7J5Q)
 
