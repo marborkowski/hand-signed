@@ -1,6 +1,6 @@
 [![Node.js CI](https://github.com/marborkowski/hand-signed/actions/workflows/node.js.yml/badge.svg?branch=main)](https://github.com/marborkowski/hand-signed/actions/workflows/node.js.yml)
 
-<img src={Logo} alt="Hand-Signed" />
+<img src="https://raw.githubusercontent.com/marborkowski/hand-signed/main/.storybook/logo.svg?token=GHSAT0AAAAAABTC7KOV4AY2SVFIABNGWTXIYTEASUA" alt="Hand-Signed" />
 
 **HandSigned** is a simple React component that allows you to quickly
 color any text in such a way that each character of the text can have a different
