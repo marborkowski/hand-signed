@@ -1,12 +1,10 @@
-# Welcome to Hand-Signed
-
 [![Node.js CI](https://github.com/marborkowski/hand-signed/actions/workflows/node.js.yml/badge.svg?branch=main)](https://github.com/marborkowski/hand-signed/actions/workflows/node.js.yml)
 
-![Colorama](https://raw.githubusercontent.com/marborkowski/hand-signed/main/.storybook/logo.svg?token=GHSAT0AAAAAABTC7KOVXVHC3RYLAKKDUDAKYTC7J5Q)
+<img src={Logo} alt="Hand-Signed" />
 
-**Colorama** is a simple React component that allows you to quickly
+**HandSigned** is a simple React component that allows you to quickly
 color any text in such a way that each character of the text can have a different
-color (for example, a rainbow effect). Colorama also brings some additional features that allow you to **animate text**. For more details check out the "Example" page.
+color (for example, a rainbow effect). HandSigned also brings some additional features that allow you to **animate text**. For more details check out the "Example" page.
 
 <br />
 <br />
@@ -24,20 +22,20 @@ color (for example, a rainbow effect). Colorama also brings some additional feat
 **YARN**
 
 ```shell
-yarn add @react-goodies/hand-signed
+yarn add @react-goodies/hand
 ```
 
 **NPM**
 
 ```shell
-npm install @react-goodies/hand-signed --save
+npm install @react-goodies/colorama --save
 ```
 
 ## Basic implementation
 
 ```jsx
 import React from "react";
-import { Colorama } from "@react-goodies/hand-signed";
+import { Colorama } from "@react-goodies/colorama";
 
 const App = () => {
   return (
