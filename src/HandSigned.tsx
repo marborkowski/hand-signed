@@ -2,7 +2,15 @@
 import * as React from "react";
 import initial from "./mock.js";
 
-interface HandSignedProps {}
+type CoordinatesType = {
+  x: number;
+  y: number;
+};
+
+interface HandSignedProps {
+  initialData?: CoordinatesType[];
+}
+
 interface Ref {
   getRawData: any | null;
 }
@@ -17,11 +25,6 @@ interface TouchEvent<T = Element> extends React.UIEvent<T, React.TouchEvent> {
   targetTouches: TouchList;
   touches: TouchList;
 }
-
-type CoordinatesType = {
-  x: number;
-  y: number;
-};
 
 // TODO: https://technotip.com/3421/accessing-raw-pixel-data-in-canvas-html5/
 
@@ -56,7 +59,7 @@ const getCoordinatesFromEvent = (
   }
 };
 
-const sinusWave = (index = 0, height = 30, amplitude = 30, frequency = 20) => {
+const sinusWave = (index = 0, height = 20, amplitude = 10, frequency = 10) => {
   if (isNaN(index)) {
     return 0;
   }
@@ -64,44 +67,45 @@ const sinusWave = (index = 0, height = 30, amplitude = 30, frequency = 20) => {
   return Math.abs(height / 2 + amplitude * Math.sin(index / frequency) - 0);
 };
 
-let gen: Generator<number> | null = null;
+let generatorInstance: Generator<number> | null = null;
+
+const genNext = () => generatorInstance?.next();
 
 const animateInitialData = function* (
-  context: CanvasRenderingContext2D | null,
+  context: CanvasRenderingContext2D,
   initial: any[]
 ) {
   let index = 0;
 
   while (index < initial.length) {
-    if (context && initial.length > 0) {
-      if (index === 0) {
+    if (index === 0) {
+      context.beginPath();
+      context.moveTo(initial[0].x, initial[0].y);
+    }
+
+    const item = initial[index];
+
+    if (!item) {
+      const next = initial[index + 1];
+      const prev = initial[index - 1];
+
+      if (next) {
         context.beginPath();
-        context.moveTo(initial[0].x, initial[0].y);
-      }
-
-      const item = initial[index];
-      if (!item) {
-        const next = initial[index + 1];
-
-        if (next) {
-          context.beginPath();
-          context.moveTo(next.x, next.y);
-        } else {
-          const prev = initial[index - 1];
-          context.beginPath();
-          context.moveTo(prev.x, prev.y);
-        }
+        context.moveTo(next.x, next.y);
       } else {
-        context.lineTo(item.x, item.y);
-        context.stroke();
+        context.beginPath();
+        context.moveTo(prev.x, prev.y);
       }
+    } else {
+      context.lineTo(item.x, item.y);
+      context.stroke();
     }
 
     setTimeout(() => {
-      window.requestAnimationFrame(() => {
-        gen?.next();
-      });
-    }, 20 + sinusWave(index));
+      if (generatorInstance) {
+        window.requestAnimationFrame(genNext);
+      }
+    }, 10 + sinusWave(index));
 
     yield index++;
   }
@@ -111,7 +115,7 @@ export const HandSigned = React.forwardRef<Ref, HandSignedProps>(
   (props, ref) => {
     const mainRef = React.useRef<HTMLDivElement>(null);
     const internalRef = React.useRef<HTMLCanvasElement>(null);
-    const [raw, setRaw] = React.useState<any[]>([]);
+    const [raw, setRaw] = React.useState<any[]>(props.initialData || []);
     const [width, setWidth] = React.useState<number>(0);
     const [isDrawing, setIsDrawing] = React.useState<boolean>(false);
     const [context, setContext] =
@@ -159,6 +163,18 @@ export const HandSigned = React.forwardRef<Ref, HandSignedProps>(
       getRawData: () => {
         return raw;
       },
+      clear: () => {
+        if (context) {
+          setRaw([]);
+          context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+        }
+      },
+      getCanvas: () => {
+        if (context) {
+          const canvas = context.canvas;
+          return canvas.toDataURL("image/png");
+        }
+      },
     }));
 
     const init = () => {
@@ -198,11 +214,15 @@ export const HandSigned = React.forwardRef<Ref, HandSignedProps>(
     }, [mainRef]);
 
     React.useEffect(() => {
-      gen = animateInitialData(context, initial);
-      gen.next();
-    }, [context, init]);
+      if (context) {
+        generatorInstance = animateInitialData(
+          context,
+          props.initialData || []
+        );
+        generatorInstance.next();
+      }
+    }, [context]);
 
-    console.log(JSON.stringify(raw));
     return (
       <div ref={mainRef}>
         <canvas
