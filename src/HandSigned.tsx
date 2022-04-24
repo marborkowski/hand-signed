@@ -1,5 +1,6 @@
 // http://jsfiddle.net/xt4erwog/4/
 import * as React from "react";
+import initial from "./mock.js";
 
 interface HandSignedProps {}
 interface Ref {
@@ -55,10 +56,62 @@ const getCoordinatesFromEvent = (
   }
 };
 
+const sinusWave = (index = 0, height = 30, amplitude = 30, frequency = 20) => {
+  if (isNaN(index)) {
+    return 0;
+  }
+
+  return Math.abs(height / 2 + amplitude * Math.sin(index / frequency) - 0);
+};
+
+let gen: Generator<number> | null = null;
+
+const animateInitialData = function* (
+  context: CanvasRenderingContext2D | null,
+  initial: any[]
+) {
+  let index = 0;
+
+  while (index < initial.length) {
+    if (context && initial.length > 0) {
+      if (index === 0) {
+        context.beginPath();
+        context.moveTo(initial[0].x, initial[0].y);
+      }
+
+      const item = initial[index];
+      if (!item) {
+        const next = initial[index + 1];
+
+        if (next) {
+          context.beginPath();
+          context.moveTo(next.x, next.y);
+        } else {
+          const prev = initial[index - 1];
+          context.beginPath();
+          context.moveTo(prev.x, prev.y);
+        }
+      } else {
+        context.lineTo(item.x, item.y);
+        context.stroke();
+      }
+    }
+
+    setTimeout(() => {
+      window.requestAnimationFrame(() => {
+        gen?.next();
+      });
+    }, 20 + sinusWave(index));
+
+    yield index++;
+  }
+};
+
 export const HandSigned = React.forwardRef<Ref, HandSignedProps>(
   (props, ref) => {
     const mainRef = React.useRef<HTMLDivElement>(null);
     const internalRef = React.useRef<HTMLCanvasElement>(null);
+    const [raw, setRaw] = React.useState<any[]>([]);
     const [width, setWidth] = React.useState<number>(0);
     const [isDrawing, setIsDrawing] = React.useState<boolean>(false);
     const [context, setContext] =
@@ -81,6 +134,10 @@ export const HandSigned = React.forwardRef<Ref, HandSignedProps>(
 
         context.lineTo(x, y);
         context.stroke();
+
+        raw.push({ x, y });
+
+        setRaw(raw);
       }
     };
 
@@ -91,13 +148,16 @@ export const HandSigned = React.forwardRef<Ref, HandSignedProps>(
         context.lineTo(x, y);
         context.stroke();
 
+        raw.push(null);
+        setRaw(raw);
+
         setIsDrawing(false);
       }
     };
 
     React.useImperativeHandle(ref, () => ({
       getRawData: () => {
-        return "dupa";
+        return raw;
       },
     }));
 
@@ -124,7 +184,6 @@ export const HandSigned = React.forwardRef<Ref, HandSignedProps>(
     }, []);
 
     React.useEffect(() => {
-      console.log("aaa");
       let resizeObserver: any | null = new ResizeObserver((entries) => {
         setWidth(mainRef.current?.clientWidth);
         init();
@@ -138,10 +197,15 @@ export const HandSigned = React.forwardRef<Ref, HandSignedProps>(
       };
     }, [mainRef]);
 
+    React.useEffect(() => {
+      gen = animateInitialData(context, initial);
+      gen.next();
+    }, [context, init]);
+
+    console.log(JSON.stringify(raw));
     return (
       <div ref={mainRef}>
         <canvas
-          style={{ border: "1px solid red" }}
           width={width}
           height="300"
           ref={internalRef}
