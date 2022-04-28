@@ -24,34 +24,72 @@ You can even use `ref` property to execute internal methods of the component lik
 **YARN**
 
 ```shell
-yarn add @react-goodies/hand
+yarn add @react-goodies/hand-signed
 ```
 
 **NPM**
 
 ```shell
-npm install @react-goodies/colorama --save
+npm install @react-goodies/hand-signed --save
 ```
 
 ## Basic implementation
 
 ```jsx
 import React from "react";
-import { Colorama } from "@react-goodies/colorama";
+import { HandSigned } from "@react-goodies/hand-signed";
+
+const initialData = [
+  { x: 275, y: 143 },
+  { x: 276, y: 143 },
+  { x: 276, y: 143 },
+  { x: 277, y: 143 },
+  { x: 277, y: 142 },
+  { x: 278, y: 142 },
+  { x: 279, y: 141 },
+  { x: 280, y: 141 },
+  { x: 281, y: 140 },
+  { x: 282, y: 139 },
+  { x: 283, y: 139 },
+  { x: 283, y: 138 },
+  { x: 284, y: 138 },
+  { x: 284, y: 138 },
+  { x: 285, y: 138 },
+];
 
 const App = () => {
+  const mainRef = React.useRef(null);
+
   return (
-    <Colorama
-      colors={[
-        "#8000ff",
-        "#FD0311",
-        "#FB8201",
-        "#FFF803",
-        "#00FF05",
-        "#0580FF",
-      ]}
-      text="Hello World!"
-    />
+    <>
+      <div>
+        <HandSigned
+          style={{ border: "1px solid #ccc" }}
+          initialData={initialData}
+          color="#000000"
+          width="700"
+          height="300"
+          ref={mainRef}
+        />
+      </div>
+      <div className="buttons">
+        <button
+          onClick={() => console.log("data", mainRef.current.getRawData())}
+        >
+          Get raw data
+        </button>
+        <button onClick={() => mainRef.current.clear()}>clear</button>
+        <button
+          onClick={() => console.log("canvas", mainRef.current.getDataURL())}
+        >
+          Get base64 image/png data
+        </button>
+
+        <button onClick={() => console.log("ref", mainRef.current.internalRef)}>
+          Get ref
+        </button>
+      </div>
+    </>
   );
 };
 
