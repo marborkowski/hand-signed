@@ -23,7 +23,6 @@ const Template: ComponentStory<typeof HandSigned> = (args) => {
   const mainRef = React.useRef(null);
 
   const showResponse = (name, response) => {
-    console.log(name, JSON.stringify(response));
     action(name || "")(response);
   };
 
