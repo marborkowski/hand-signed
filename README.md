@@ -1,6 +1,6 @@
 [![Node.js CI](https://github.com/marborkowski/hand-signed/actions/workflows/node.js.yml/badge.svg?branch=main)](https://github.com/marborkowski/hand-signed/actions/workflows/node.js.yml)
 
-<img src="https://raw.githubusercontent.com/marborkowski/hand-signed/main/.storybook/logo.svg?token=GHSAT0AAAAAABTC7KOV4AY2SVFIABNGWTXIYTEASUA" alt="Hand-Signed" />
+<img src="https://raw.githubusercontent.com/marborkowski/hand-signed/main/.storybook/logo.svg?token=GHSAT0AAAAAABTC7KOUSOCKTYLK5WQ3F6HAYTK2P5Q" alt="Hand-Signed" />
 
 **HandSigned** is a react component that allows you to easily expose a manual signature interface in your web application.
 
