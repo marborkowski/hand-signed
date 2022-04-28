@@ -1,22 +1,32 @@
-export type ColorType = string;
+import React from "react";
 
-export enum AnimationDirectionType {
-  REVERSE = "reverse",
-  NORMAL = "normal",
+export type CoordinatesType = {
+  x: number;
+  y: number;
+};
+
+export interface HandSignedProps
+  extends React.HTMLAttributes<HTMLCanvasElement> {
+  initialData?: CoordinatesType[];
+  color?: string;
+  width?: string;
+  height?: string;
 }
 
-export enum AnimationType {
-  LEFT = "left",
-  RIGHT = "right",
-  TOP = "top",
-  BOTTOM = "bottom",
+export interface Ref {
+  getRawData: () => CoordinatesType[];
+  clear: () => void;
+  getDataURL: () => string;
 }
 
-export interface ColoramaProps {
-  colors?: ColorType[];
-  bg?: boolean;
-  text: string;
-  animate?: boolean;
-  animationDirection?: AnimationDirectionType;
-  animationType?: AnimationType;
+export interface TouchEvent<T = Element>
+  extends React.UIEvent<T, React.TouchEvent> {
+  altKey: boolean;
+  changedTouches: TouchList;
+  ctrlKey: boolean;
+  getModifierState(key: string): boolean;
+  metaKey: boolean;
+  shiftKey: boolean;
+  targetTouches: TouchList;
+  touches: TouchList;
 }

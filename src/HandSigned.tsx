@@ -1,122 +1,21 @@
-// http://jsfiddle.net/xt4erwog/4/
 import * as React from "react";
-import initial from "./mock.js";
-
-type CoordinatesType = {
-  x: number;
-  y: number;
-};
-
-interface HandSignedProps {
-  initialData?: CoordinatesType[];
-}
-
-interface Ref {
-  getRawData: any | null;
-}
-
-interface TouchEvent<T = Element> extends React.UIEvent<T, React.TouchEvent> {
-  altKey: boolean;
-  changedTouches: TouchList;
-  ctrlKey: boolean;
-  getModifierState(key: string): boolean;
-  metaKey: boolean;
-  shiftKey: boolean;
-  targetTouches: TouchList;
-  touches: TouchList;
-}
-
-// TODO: https://technotip.com/3421/accessing-raw-pixel-data-in-canvas-html5/
-
-const getCoordinatesFromEvent = (
-  event: TouchEvent<HTMLElement> & MouseEvent
-): CoordinatesType => {
-  const { changedTouches } = event;
-
-  const target = event.target as HTMLElement;
-  const rect = target.getBoundingClientRect();
-
-  // Mouse position
-  const x = event.clientX - rect.left;
-  const y = event.clientY - rect.top;
-
-  if (!changedTouches) {
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-
-    return {
-      x,
-      y,
-    };
-  } else {
-    const x = changedTouches[0].clientX - rect.left;
-    const y = changedTouches[0].clientY - rect.top;
-
-    return {
-      x,
-      y,
-    };
-  }
-};
-
-const sinusWave = (index = 0, height = 20, amplitude = 10, frequency = 10) => {
-  if (isNaN(index)) {
-    return 0;
-  }
-
-  return Math.abs(height / 2 + amplitude * Math.sin(index / frequency) - 0);
-};
-
-let generatorInstance: Generator<number> | null = null;
-
-const genNext = () => generatorInstance?.next();
-
-const animateInitialData = function* (
-  context: CanvasRenderingContext2D,
-  initial: any[]
-) {
-  let index = 0;
-
-  while (index < initial.length) {
-    if (index === 0) {
-      context.beginPath();
-      context.moveTo(initial[0].x, initial[0].y);
-    }
-
-    const item = initial[index];
-
-    if (!item) {
-      const next = initial[index + 1];
-      const prev = initial[index - 1];
-
-      if (next) {
-        context.beginPath();
-        context.moveTo(next.x, next.y);
-      } else {
-        context.beginPath();
-        context.moveTo(prev.x, prev.y);
-      }
-    } else {
-      context.lineTo(item.x, item.y);
-      context.stroke();
-    }
-
-    setTimeout(() => {
-      if (generatorInstance) {
-        window.requestAnimationFrame(genNext);
-      }
-    }, 10 + sinusWave(index));
-
-    yield index++;
-  }
-};
+import chroma from "chroma-js";
+import { HandSignedProps, Ref } from "./types";
+import { getCoordinatesFromEvent, initAnimation } from "./utils";
 
 export const HandSigned = React.forwardRef<Ref, HandSignedProps>(
-  (props, ref) => {
-    const mainRef = React.useRef<HTMLDivElement>(null);
+  (
+    {
+      color = "#000000",
+      initialData = [],
+      width = "700",
+      height = "300",
+      ...props
+    },
+    ref
+  ) => {
     const internalRef = React.useRef<HTMLCanvasElement>(null);
-    const [raw, setRaw] = React.useState<any[]>(props.initialData || []);
-    const [width, setWidth] = React.useState<number>(0);
+    const [raw, setRaw] = React.useState<any[]>(initialData || []);
     const [isDrawing, setIsDrawing] = React.useState<boolean>(false);
     const [context, setContext] =
       React.useState<CanvasRenderingContext2D | null>(null);
@@ -137,6 +36,7 @@ export const HandSigned = React.forwardRef<Ref, HandSignedProps>(
         const { x, y } = getCoordinatesFromEvent(event);
 
         context.lineTo(x, y);
+        context.strokeStyle = color;
         context.stroke();
 
         raw.push({ x, y });
@@ -150,6 +50,7 @@ export const HandSigned = React.forwardRef<Ref, HandSignedProps>(
         const { x, y } = getCoordinatesFromEvent(event);
 
         context.lineTo(x, y);
+        context.strokeStyle = color;
         context.stroke();
 
         raw.push(null);
@@ -160,8 +61,9 @@ export const HandSigned = React.forwardRef<Ref, HandSignedProps>(
     };
 
     React.useImperativeHandle(ref, () => ({
+      internalRef,
       getRawData: () => {
-        return raw;
+        return raw.filter((_, index) => index < raw.length - 1);
       },
       clear: () => {
         if (context) {
@@ -169,11 +71,13 @@ export const HandSigned = React.forwardRef<Ref, HandSignedProps>(
           context.clearRect(0, 0, context.canvas.width, context.canvas.height);
         }
       },
-      getCanvas: () => {
+      getDataURL: () => {
         if (context) {
           const canvas = context.canvas;
           return canvas.toDataURL("image/png");
         }
+
+        return "";
       },
     }));
 
@@ -184,11 +88,13 @@ export const HandSigned = React.forwardRef<Ref, HandSignedProps>(
         const context = current.getContext("2d");
 
         if (context) {
-          context.shadowColor = "rgba(0,0,0,.5)";
-          context.shadowBlur = 1;
+          const rgbColor = chroma(color).rgb();
+
+          context.shadowColor = `rgba(${rgbColor[0]}, ${rgbColor[1]}, ${rgbColor[2]}, .5)`;
+          context.shadowBlur = 1.5;
           context.lineCap = "round";
           context.lineJoin = "round";
-          context.lineWidth = 3;
+          context.lineWidth = 1;
 
           setContext(context);
         }
@@ -200,44 +106,25 @@ export const HandSigned = React.forwardRef<Ref, HandSignedProps>(
     }, []);
 
     React.useEffect(() => {
-      let resizeObserver: any | null = new ResizeObserver((entries) => {
-        setWidth(mainRef.current?.clientWidth);
-        init();
-      });
-
-      resizeObserver.observe(mainRef.current);
-
-      return () => {
-        resizeObserver.disconnect();
-        resizeObserver = null;
-      };
-    }, [mainRef]);
-
-    React.useEffect(() => {
       if (context) {
-        generatorInstance = animateInitialData(
-          context,
-          props.initialData || []
-        );
-        generatorInstance.next();
+        initAnimation(context, initialData, color);
       }
     }, [context]);
 
     return (
-      <div ref={mainRef}>
-        <canvas
-          width={width}
-          height="300"
-          ref={internalRef}
-          onMouseDown={handleMouseDown}
-          onTouchStart={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onTouchMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseOut={handleMouseUp}
-          onTouchEnd={handleMouseUp}
-        />
-      </div>
+      <canvas
+        {...props}
+        width={width}
+        height={height}
+        ref={internalRef}
+        onMouseDown={handleMouseDown}
+        onTouchStart={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onTouchMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseOut={handleMouseUp}
+        onTouchEnd={handleMouseUp}
+      />
     );
   }
 );

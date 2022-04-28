@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`changes the class when hovered 1`] = `
+<canvas
+  height="300"
+  onMouseDown={[Function]}
+  onMouseMove={[Function]}
+  onMouseOut={[Function]}
+  onMouseUp={[Function]}
+  onTouchEnd={[Function]}
+  onTouchMove={[Function]}
+  onTouchStart={[Function]}
+  width="700"
+/>
+`;

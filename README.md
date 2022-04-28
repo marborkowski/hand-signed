@@ -2,9 +2,11 @@
 
 <img src="https://raw.githubusercontent.com/marborkowski/hand-signed/main/.storybook/logo.svg?token=GHSAT0AAAAAABTC7KOV4AY2SVFIABNGWTXIYTEASUA" alt="Hand-Signed" />
 
-**HandSigned** is a simple React component that allows you to quickly
-color any text in such a way that each character of the text can have a different
-color (for example, a rainbow effect). HandSigned also brings some additional features that allow you to **animate text**. For more details check out the "Example" page.
+**HandSigned** is a react component that allows you to easily expose a manual signature interface in your web application.
+
+This library uses the classic canvas element to render the signature.
+
+You can even use `ref` property to execute internal methods of the component like `clear`, `getDataURL`, `getRawData`. You can also read the original canvas element reference if you need.
 
 <br />
 <br />
